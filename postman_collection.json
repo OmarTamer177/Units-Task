@@ -1,0 +1,162 @@
+{
+  "info": {
+    "name": "Posts API",
+    "description": "Create, get and list posts. Creating a post also publishes a post.created event to Kafka.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://35.208.205.56:8000" },
+    { "key": "postId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Create post",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "const post = pm.response.json();",
+              "pm.test('Response has id, title and content', function () {",
+              "  pm.expect(post).to.have.property('id');",
+              "  pm.expect(post.title).to.eql('Hello from Postman');",
+              "  pm.expect(post.content).to.eql('My first post');",
+              "});",
+              "pm.collectionVariables.set('postId', post.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Hello from Postman\",\n  \"content\": \"My first post\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/posts",
+          "host": ["{{baseUrl}}"],
+          "path": ["posts"]
+        }
+      }
+    },
+    {
+      "name": "Get post by id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Returns the created post', function () {",
+              "  pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('postId'));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/posts/{{postId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["posts", "{{postId}}"]
+        }
+      }
+    },
+    {
+      "name": "List posts",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Returns an array', function () {",
+              "  pm.expect(pm.response.json()).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/posts",
+          "host": ["{{baseUrl}}"],
+          "path": ["posts"]
+        }
+      }
+    },
+    {
+      "name": "Create post - missing title (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 400', function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "pm.test('Returns an error message', function () {",
+              "  pm.expect(pm.response.json()).to.have.property('error');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"No title here\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/posts",
+          "host": ["{{baseUrl}}"],
+          "path": ["posts"]
+        }
+      }
+    },
+    {
+      "name": "Get post - not found (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 404', function () {",
+              "  pm.response.to.have.status(404);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/posts/does-not-exist",
+          "host": ["{{baseUrl}}"],
+          "path": ["posts", "does-not-exist"]
+        }
+      }
+    }
+  ]
+}
