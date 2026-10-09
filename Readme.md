@@ -50,7 +50,7 @@ curl -X POST http://35.208.205.56:8000/posts \
   -d '{"title":"Hello","content":"My first post"}'
 ```
 
-A Postman collection is included in `postman/posts-api.postman_collection.json`.
+A Postman collection is included in `postman_collection.json`.
 
 ## Running locally
 
